@@ -26,7 +26,7 @@ public:
     std::shared_ptr<outgoing::Response> handleError(const Status& status, const oatpp::String& message, const Headers& headers) override
     {
         std::filesystem::path place = config::path;
-        place /= "1.png";
+        place /= "-1.png";
         std::string path = place.generic_string();
         auto img = oatpp::base::StrBuffer::loadFromFile(path.c_str());
 
@@ -68,9 +68,9 @@ public:
         {
             std::shared_ptr<OutgoingResponse> response;
             String id = request->getPathVariable("id");
-            assignOrDefault(id, "1");
+            assignOrDefault(id, "-1");
             auto img = loadImage(id);
-            assignOrDefault(img, loadImage("1"));
+            assignOrDefault(img, loadImage("-1"));
 
             response = controller->createResponse(Status::CODE_200, img);
             response->putHeader("Content-Type", "image/png");
