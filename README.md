@@ -2,7 +2,7 @@
 
 # Installation
 ```
-git clone https://github.com/Rynnya/avatar-server
+git clone https://github.com/Rynnya/avatar-server --recursive
 cd avatar-server
 mkdir build
 cd build
