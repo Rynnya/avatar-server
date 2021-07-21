@@ -7,21 +7,30 @@ set(OATPP_DISABLE_ENV_OBJECT_COUNTERS ON CACHE BOOL "Do not count oatpp objects"
 
 set(CMAKE_CXX_STANDARD 17)
 
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/libs/oatpp/CMakeLists.txt)
+	message(FATAL_ERROR "oatpp is missing in folder /libs/oatpp. Have you initialized the submodules / downloaded the extra libraries?")
+endif()
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/libs/redis/CMakeLists.txt)
+	message(FATAL_ERROR "cpp_redis is missing in folder /libs/redis. Have you initialized the submodules / downloaded the extra libraries?")
+endif()
+
 add_subdirectory(libs/oatpp/)
+add_subdirectory(libs/redis/)
 include_directories(src)
 
 add_executable(${project_name}
         src/components.hpp
-		src/config.cpp
-		src/config.hpp
         src/controller.hpp
-		src/main.cpp
+	src/globals.cpp
+	src/globals.hpp
+	src/main.cpp
 )
 
 ## link libs
-target_link_libraries(${project_name} PUBLIC oatpp)
+target_link_libraries(${project_name} PUBLIC oatpp cpp_redis)
 
 target_include_directories(${project_name} PUBLIC src)
+target_include_directories(${project_name} PRIVATE ${CMAKE_SOURCE_DIR}/libs/redis/includes)
 
 set_target_properties(${project_name} PROPERTIES
         CXX_STANDARD 17
@@ -34,6 +43,8 @@ if (MSVC)
 	set_target_properties(
 		oatpp
 		oatpp-test
+		cpp_redis
+		tacopie
 		PROPERTIES FOLDER libs
 	)
 	add_definitions(/wd4244 /bigobj)

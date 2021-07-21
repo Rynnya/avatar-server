@@ -1,3 +1,6 @@
 [submodule "libs/oatpp"]
 	path = libs/oatpp
 	url = https://github.com/oatpp/oatpp
+[submodule "libs/redis"]
+	path = libs/redis
+	url = https://github.com/cpp-redis/cpp_redis

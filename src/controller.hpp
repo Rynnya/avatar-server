@@ -9,8 +9,43 @@
 #include "oatpp/web/server/handler/ErrorHandler.hpp"
 #include "oatpp/web/protocol/http/outgoing/BufferBody.hpp"
 
-#include "config.hpp"
+#include "globals.hpp"
 #include <filesystem>
+#include <iostream>
+
+class StaticManager
+{
+public:
+    inline static oatpp::String readFile(std::string key, std::filesystem::path place)
+    {
+        if (globals::cache_state)
+        {
+            oatpp::String file;
+            if (file = globals::cache[key].first)
+            {
+                globals::cache[key].second = globals::get_time_epoch();
+                return file;
+            }
+        }
+
+        std::string path = place.generic_string();
+        auto buffer = oatpp::base::StrBuffer::loadFromFile(path.c_str());
+        if (buffer)
+        {
+            if (globals::cache_state)
+            {
+                std::pair<oatpp::String, int64_t> current_pair;
+                current_pair.first = buffer;
+                current_pair.second = globals::get_time_epoch();
+                globals::cache[key] = current_pair;
+            }
+
+            return buffer;
+        }
+
+        return nullptr;
+    }
+};
 
 using namespace oatpp::web::protocol::http;
 class ErrorHandler : public oatpp::base::Countable, public oatpp::web::server::handler::ErrorHandler
@@ -25,12 +60,9 @@ public:
 
     std::shared_ptr<outgoing::Response> handleError(const Status& status, const oatpp::String& message, const Headers& headers) override
     {
-        std::filesystem::path place = config::path;
-        place /= "-1.png";
-        std::string path = place.generic_string();
-        auto img = oatpp::base::StrBuffer::loadFromFile(path.c_str());
-
-        return outgoing::ResponseFactory::createResponse(Status::CODE_200, img);
+        auto response = outgoing::ResponseFactory::createResponse(Status::CODE_200, globals::cache["-1"].first);
+        response->putHeader("Content-Type", "image/png");
+        return response;
     };
 
 };
@@ -42,9 +74,11 @@ class Controller : public oatpp::web::server::api::ApiController
 protected:
     Controller(const std::shared_ptr<ObjectMapper>& objectMapper)
         : oatpp::web::server::api::ApiController(objectMapper)
-    {}
+    {
+        StaticManager::readFile("-1", std::filesystem::path(globals::path) / "-1.png");
+    }
     template <typename T, typename V>
-    static void assignOrDefault(T& value, V def) { value = value == nullptr ? def : value; }
+    inline static void assignOrDefault(T& value, V def) { value = value == nullptr ? def : value; }
 public:
     static std::shared_ptr<Controller> createShared(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>, objectMapper))
     {
@@ -53,26 +87,16 @@ public:
 
     ENDPOINT_ASYNC("GET", "/{id}", Root)
     {
-        ENDPOINT_ASYNC_INIT(Root)
-
-        std::shared_ptr<oatpp::base::StrBuffer> loadImage(String id)
-        {
-            std::filesystem::path place = config::path;
-            place /= id->c_str();
-            place += ".png";
-            std::string path = place.generic_string();
-            return oatpp::base::StrBuffer::loadFromFile(path.c_str());
-        }
+        ENDPOINT_ASYNC_INIT(Root);
 
         Action act() override
         {
-            std::shared_ptr<OutgoingResponse> response;
             String id = request->getPathVariable("id");
             assignOrDefault(id, "-1");
-            auto img = loadImage(id);
-            assignOrDefault(img, loadImage("-1"));
-
-            response = controller->createResponse(Status::CODE_200, img);
+            std::string full_tail = id->std_str() + ".png";
+            auto img = StaticManager::readFile(id->std_str(), std::filesystem::path(globals::path) / full_tail);
+            assignOrDefault(img, globals::cache["-1"].first);
+            auto response = controller->createResponse(Status::CODE_200, img);
             response->putHeader("Content-Type", "image/png");
             return _return(response);
         }

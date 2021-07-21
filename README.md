@@ -11,9 +11,6 @@ cmake --build . --config Release
 ```
 
 # Config
-```
-path = /path/to/folder
-```
-Put this in config.txt where you run program (run without config to see path)
+Rename config_example.txt to config.txt, change info to yours, and put it where you run program (run without config to see path)
 
 Thats pretty much everything that required to run this \o/

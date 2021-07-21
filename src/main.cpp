@@ -2,14 +2,32 @@
 #include "components.hpp"
 
 #include "controller.hpp"
-#include "config.hpp"
+#include "globals.hpp"
 
 #include <iostream>
 
 void run()
 {
 	/* Parse config */
-	config::parse();
+	globals::parse();
+
+	/* New thread to avoid overflow in cache */
+	if (globals::cache_state)
+	{
+		std::thread([]
+		{
+			std::this_thread::sleep_for(std::chrono::minutes(30));
+			int64_t current_time = globals::get_time_epoch();
+			for (auto it = globals::cache.begin(); it != globals::cache.end(); it++)
+			{
+				if (it->first == "-1")
+					continue;
+
+				if (it->second.second + 7200 < current_time)
+					globals::cache.erase(it);
+			}
+		}).detach();
+	}
 
 	/* Register Components in scope of run() method */
 	AppComponent components;
@@ -40,7 +58,7 @@ void run()
 	server.run();
 }
 
-int main(int argc, const char* argv[]) 
+int main(int argc, const char* argv[])
 {
 	oatpp::base::Environment::init();
 	run();
