@@ -28,7 +28,7 @@ public:
         if (!globals::redis::password.empty())
             sub->auth(globals::redis::password);
 
-        sub->subscribe("aru::change_avatar", [](std::string ch, std::string msg)
+        sub->subscribe("aru.change_avatar", [](std::string ch, std::string msg)
         {
             std::unordered_map<std::string, std::pair<oatpp::String, int64_t>>::iterator it = globals::cache.find(msg);
             if (it != globals::cache.end())
