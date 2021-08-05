@@ -7,6 +7,8 @@
 
 namespace globals
 {
+	extern bool display_config;
+
 	namespace redis
 	{
 		extern std::string address;
@@ -18,7 +20,7 @@ namespace globals
 	extern bool cache_state;
 	extern std::unordered_map<std::string, std::pair<oatpp::String, int64_t>> cache;
 
-	inline bool string_to_bool(std::string value) { return value == "true"; }
+	inline bool string_to_bool(const std::string& value) { return value == "true"; }
 	void parse();
 	int64_t get_time_epoch();
 }

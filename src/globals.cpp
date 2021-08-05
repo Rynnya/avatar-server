@@ -1,11 +1,14 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <functional>
 
 #include "globals.hpp"
 
 namespace globals
 {
+	bool display_config = false;
+
 	namespace redis
 	{
 		std::string address = "127.0.0.1";
@@ -16,6 +19,16 @@ namespace globals
 	std::string path = "/path/to/folder/";
 	bool cache_state = true;
 	std::unordered_map<std::string, std::pair<oatpp::String, int64_t>> cache = {};
+
+	static std::unordered_map<std::string, std::function<void(const std::string&)>> kv_map =
+	{
+		{ "display_config", [&](const std::string& value) { globals::display_config = string_to_bool(value); } },
+		{ "redis_address",  [&](const std::string& value) { globals::redis::address = value; } },
+		{ "redis_port",     [&](const std::string& value) { globals::redis::port = std::stoll(value); } },
+		{ "redis_password", [&](const std::string& value) { globals::redis::password = value; } },
+		{ "path",           [&](const std::string& value) { globals::path = value; } },
+		{ "disable_cache",  [&](const std::string& value) { globals::cache_state = !string_to_bool(value); } }
+	};
 
 	void parse()
 	{
@@ -43,20 +56,14 @@ namespace globals
 			std::string key = line.substr(0, splitter);
 			std::string value = line.substr(splitter + 3, line.size() - 1);
 
-			std::cout << "Config: [ " << key << " == " << value << " ]\n";
-
-			// I know this might be shitty but its works
-			if (key == "redis_address")
-				globals::redis::address = value;
-			if (key == "redis_port")
-				globals::redis::port = std::stoll(value);
-			if (key == "redis_password")
-				globals::redis::password = value;
-
-			if (key == "path")
-				globals::path = value;
-			if (key == "disable_cache")
-				globals::cache_state = !string_to_bool(value);
+			auto& func = kv_map.find(key);
+			if (func != kv_map.end())
+			{
+				if (display_config)
+					std::cout << "Config: [ " << key << " == " << value << " ]\n";
+				
+				(*func).second(value);
+			}
 		}
 
 		if (globals::path == "/path/to/avatars")
