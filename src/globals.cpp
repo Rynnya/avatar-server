@@ -45,7 +45,7 @@ namespace globals {
             std::ignore = getchar();
             exit(-1);
         }
-        
+
         std::string line;
         while (!file.eof()) {
             std::getline(file, line);
@@ -62,12 +62,12 @@ namespace globals {
             std::string key = line.substr(0, splitter);
             std::string value = line.substr(splitter + 3, line.size() - 1);
 
-            auto& func = kv_map.find(key);
+            const auto& func = kv_map.find(key);
             if (func != kv_map.end()) {
                 if (display_config) {
                     std::cout << "Config: [ " << key << " == " << value << " ]\n";
                 }
-                
+
                 (*func).second(value);
             }
         }

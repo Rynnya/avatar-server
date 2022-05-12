@@ -62,6 +62,16 @@ public:
 
     }());
 
+    OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, apiObjectMapper)([] {
+
+        auto serializerConfig = oatpp::parser::json::mapping::Serializer::Config::createShared();
+        auto deserializerConfig = oatpp::parser::json::mapping::Deserializer::Config::createShared();
+        deserializerConfig->allowUnknownFields = false;
+        auto objectMapper = oatpp::parser::json::mapping::ObjectMapper::createShared(serializerConfig, deserializerConfig);
+        return objectMapper;
+
+    }());
+
 };
 
 #endif /* AppComponent_hpp */
