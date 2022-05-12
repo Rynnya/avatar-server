@@ -1,7 +1,12 @@
+display_config = false
+port = 8200
+
 redis_address = 127.0.0.1
 redis_port = 6379
 # Remove hashtag at the beginning if your redis instance have password and enter password WITHOUT QUOTES
 #redis_password = password
 
 path = /path/to/avatars
+
 disable_cache = false
+cache_size = 64

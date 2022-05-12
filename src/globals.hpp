@@ -2,27 +2,33 @@
 #define globals_hpp_included
 
 #include <string>
-#include <unordered_map>
 #include <oatpp/core/Types.hpp>
 
-namespace globals
-{
-	extern bool display_config;
+#include "concurrent_cache.hpp"
 
-	namespace redis
-	{
-		extern std::string address;
-		extern size_t port;
-		extern std::string password;
-	}
+namespace globals {
 
-	extern std::string path;
-	extern bool cache_state;
-	extern std::unordered_map<std::string, std::pair<oatpp::String, int64_t>> cache;
+    extern bool display_config;
+    extern uint16_t port;
 
-	inline bool string_to_bool(const std::string& value) { return value == "true"; }
-	void parse();
-	int64_t get_time_epoch();
+    namespace redis {
+        extern std::string address;
+        extern size_t port;
+        extern std::string password;
+    }
+
+    extern std::string path;
+
+    extern bool cache_state;
+    extern size_t cache_size;
+
+    extern lib::lru_cache<std::string, oatpp::String> cache;
+    extern oatpp::String default_image;
+
+    void parse();
+
+    int64_t get_time_epoch();
+    bool string_to_bool(const std::string& value);
 }
 
 #endif
