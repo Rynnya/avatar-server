@@ -17,7 +17,7 @@
 class StaticManager {
 public:
     inline static oatpp::String readFile(const std::string& key, const std::filesystem::path& place) {
-        if (key == "-1") {
+        if (key == "-1.png") {
             return globals::default_image;
         }
 
@@ -50,7 +50,7 @@ public:
     }
 
     std::shared_ptr<outgoing::Response> handleError(const Status& status, const oatpp::String& message, const Headers& headers) override {
-        auto response = outgoing::ResponseFactory::createResponse(Status::CODE_200, globals::cache.get("-1"));
+        auto response = outgoing::ResponseFactory::createResponse(Status::CODE_200, globals::default_image);
         response->putHeader("Content-Type", "image/png");
         return response;
     };
