@@ -30,7 +30,7 @@ public:
         }
 
         sub->subscribe("aru.change_avatar", [](const std::string& /* not used */, const std::string& message) {
-            static_cast<void>(StaticManager::readFile(message, std::filesystem::path(globals::path) / message));
+            static_cast<void>(StaticManager::readFile(message, true));
         });
 
         sub->commit();

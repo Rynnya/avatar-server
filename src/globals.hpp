@@ -1,6 +1,7 @@
 #ifndef globals_hpp_included
 #define globals_hpp_included
 
+#include <filesystem>
 #include <string>
 #include <oatpp/core/Types.hpp>
 
@@ -17,7 +18,7 @@ namespace globals {
         extern std::string password;
     }
 
-    extern std::string path;
+    extern std::filesystem::path path;
 
     extern bool cache_state;
     extern size_t cache_size;

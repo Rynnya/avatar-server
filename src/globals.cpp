@@ -16,7 +16,7 @@ namespace globals {
         std::string password = "";
     }
 
-    std::string path = "/path/to/folder/";
+    std::filesystem::path path = "/path/to/folder/";
 
     bool cache_state = true;
     size_t cache_size = 64;
@@ -72,7 +72,7 @@ namespace globals {
             }
         }
 
-        if (globals::path == "/path/to/avatars") {
+        if (globals::path == "/path/to/folder/") {
             std::cout << "Config: You didn't initialize avatar path folder.\n";
             std::cout << "Config: Please select 'avatars' folder to make site work properly.\n";
             std::cout << "Press any button to leave...\n";
@@ -99,6 +99,6 @@ namespace globals {
     }
 
     bool string_to_bool(const std::string& value) {
-        return value == "true";
+        return value == "1" || value == "true";
     }
 }

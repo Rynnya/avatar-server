@@ -16,31 +16,11 @@
 
 class StaticManager {
 public:
-    inline static oatpp::String readFile(const std::string& key, const std::filesystem::path& place) {
-        if (key == "-1.png") {
-            return globals::default_image;
-        }
-
-        if (globals::cache_state) {
-            if (auto file = globals::cache.get(key)) {
-                return file;
-            }
-        }
-
-        const std::string path = place.generic_string();
-        if (auto buffer = oatpp::base::StrBuffer::loadFromFile(path.c_str())) {
-            if (globals::cache_state) {
-                globals::cache.insert(key, buffer);
-            }
-
-            return buffer;
-        }
-
-        return globals::default_image;
-    }
+    static oatpp::String readFile(const std::string& id, bool overwrite = false);
 };
 
-using namespace oatpp::web::protocol::http;
+namespace http = oatpp::web::protocol::http;
+
 class ErrorHandler : public oatpp::base::Countable, public oatpp::web::server::handler::ErrorHandler {
 public:
     ErrorHandler() {}
@@ -49,8 +29,8 @@ public:
         return std::make_shared<ErrorHandler>();
     }
 
-    std::shared_ptr<outgoing::Response> handleError(const Status& status, const oatpp::String& message, const Headers& headers) override {
-        auto response = outgoing::ResponseFactory::createResponse(Status::CODE_200, globals::default_image);
+    std::shared_ptr<http::outgoing::Response> handleError(const http::Status& status, const oatpp::String& message, const Headers& headers) override {
+        auto response = http::outgoing::ResponseFactory::createResponse(http::Status::CODE_200, globals::default_image);
         response->putHeader("Content-Type", "image/png");
         return response;
     };
@@ -76,14 +56,11 @@ public:
 
         Action act() override {
             String unsafeId = request->getPathVariable("id");
-            std::string fullId = std::to_string(std::stoll(unsafeId->std_str())) + ".png";
+            int64_t safeId = std::stoll(unsafeId->std_str());
 
-            auto response = controller->createResponse(
-                Status::CODE_200, 
-                StaticManager::readFile(fullId, std::filesystem::path(globals::path) / fullId)
-            );
-
+            auto response = controller->createResponse(Status::CODE_200,  StaticManager::readFile(std::to_string(safeId)));
             response->putHeader("Content-Type", "image/png");
+
             return _return(response);
         }
 
