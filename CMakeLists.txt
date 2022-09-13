@@ -21,6 +21,7 @@ include_directories(src)
 add_executable(${project_name}
     src/components.hpp
     src/concurrent_cache.hpp
+    src/controller.cpp
     src/controller.hpp
     src/globals.cpp
     src/globals.hpp

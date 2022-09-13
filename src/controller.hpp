@@ -58,7 +58,7 @@ public:
             String unsafeId = request->getPathVariable("id");
             int64_t safeId = std::stoll(unsafeId->std_str());
 
-            auto response = controller->createResponse(Status::CODE_200,  StaticManager::readFile(std::to_string(safeId)));
+            auto response = controller->createResponse(Status::CODE_200, StaticManager::readFile(std::to_string(safeId)));
             response->putHeader("Content-Type", "image/png");
 
             return _return(response);
